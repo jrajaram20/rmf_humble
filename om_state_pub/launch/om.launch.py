@@ -10,7 +10,7 @@ def generate_launch_description():
         #name = 'action_server',
         #output='screen',
         parameters=[{
-            'ip_address': "192.168.56.10"
+            'ip_address': "192.168.56.10",
             'port': 7171,
             'arcl_passwd': "omron"
         }]

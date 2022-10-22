@@ -271,15 +271,16 @@ class FleetManager(Node):
             #self.get_logger().info(f"x, y:, [{x,y,target_yaw}]")
             #theta = int(math.degrees(['target_loc.theta']))
             theta = int(target_loc.theta)
-            if (x < -78360 and x > -78560) and (y < 2277 and y > 2077):
-                self.send_goal(f"goto one", ["Arrived at one", "Failed going to goal "])
-            elif (x < -78360 and x > -78560) and (y < 4712 and y > 4512):
-                self.send_goal(f"goto two", ["Arrived at two", "Failed going to goal "])
-            elif (x < -79017 and x > -79217) and (y < 90 and y > -90):
-                self.send_goal(f"goto home", ["Arrived at home", "Failed going to goal "])
-            else:
-                self.send_goal(f"gotoPoint {x} {y} {theta}", ["Arrived at point ", "Failed going to goal "])
-                self.get_logger().info(f"gotoPointtttttt, [{x} {y} {theta}]")
+            # if (x < -78360 and x > -78560) and (y < 2277 and y > 2077):
+            #     self.send_goal(f"goto one", ["Arrived at one", "Failed going to goal "])
+            # elif (x < -78360 and x > -78560) and (y < 4712 and y > 4512):
+            #     self.send_goal(f"goto two", ["Arrived at two", "Failed going to goal "])
+            # elif (x < -79017 and x > -79217) and (y < 90 and y > -90):
+            #     self.send_goal(f"goto home", ["Arrived at home", "Failed going to goal "])
+            # else:
+            #     self.send_goal(f"gotoPoint {x} {y} {theta}", ["Arrived at point ", "Failed going to goal "])
+            #     self.get_logger().info(f"gotoPointtttttt, [{x} {y} {theta}]")
+            self.send_goal(f"gotoPoint {x} {y} {theta}", ["Arrived at point ", "Failed going to goal "])
             #self.send_goal(f"goto goal6",["Arrived at goal6 ", "Failed going to goal "])
             #----------------------------------------------------------------------------------------
             response['success'] = True

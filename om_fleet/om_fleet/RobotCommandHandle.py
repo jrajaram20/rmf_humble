@@ -267,15 +267,15 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
             self.clear()
 
             self.node.get_logger().info(f"Received new path for {self.name}")
-
+            self.node.get_logger().info(f"waypointtttt[{(waypoints[0].position)}] ")
             self.remaining_waypoints = self.filter_waypoints(waypoints)
-            
             assert next_arrival_estimator is not None
             assert path_finished_callback is not None
 
             def _follow_path():
                 target_pose = None
                 path_index = 0
+                
                 while self.remaining_waypoints \
                         or self.state == RobotState.MOVING:
                     # Save the current_cmd_id before checking if we need to
@@ -623,14 +623,15 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
 
     def filter_waypoints(self, wps: list):
         ''' Return filtered PlanWaypoints'''
-
+        
+        #print (' '.join(wps))
         assert(len(wps) > 0)
         p = np.array([self.position[0], self.position[1]])
-        self.node.get_logger().info(f"[{len(wps)}] remaining waypointtttttt")
+        #for w in wps:
+        #    self.node.get_logger().info(f"[{(w)}] remaining waypointtttttt")
         waypoints = []
         for i in range(len(wps)):
             waypoints.append(PlanWaypoint(i, wps[i]))
-
         # If the robot is already in the middle of two waypoints, then we can
         # truncate all the waypoints that come before it.
         begin_at_index = 0
