@@ -137,26 +137,6 @@ class FleetManager(Node):
 
         self.sio = socketio.Client()
 
-        # @self.sio.on("/gps")
-        # def message(data):
-        #     try:
-        #         robot = json.loads(data)
-        #         robot_name = robot['robot_id']
-        #         self.robots[robot_name].gps_to_xy(robot)
-        #     except KeyError as e:
-        #         self.get_logger().info(f"Malformed GPS Message!: {e}")
-
-        # if self.gps:
-        #     while True:
-        #         try:
-        #             self.sio.connect('http://0.0.0.0:8080')
-        #             break
-        #         except Exception:
-        #             self.get_logger().info(
-        #                 f"Trying to connect to sio server at"
-        #                 f"http://0.0.0.0:8080..")
-        #             time.sleep(1)
-
         self.create_subscription(
             Status,
             'Rstate',
@@ -171,11 +151,11 @@ class FleetManager(Node):
             reliability=Reliability.RELIABLE,
             durability=Durability.TRANSIENT_LOCAL)
 
-        self.create_subscription(
-            DockSummary,
-            'dock_summary',
-            self.dock_summary_cb,
-            qos_profile=transient_qos)
+        # self.create_subscription(
+        #     DockSummary,
+        #     'dock_summary',
+        #     self.dock_summary_cb,
+        #     qos_profile=transient_qos)
 
         # self.path_pub = self.create_publisher(
         #     PathRequest,
@@ -203,125 +183,6 @@ class FleetManager(Node):
                 if state is None or state.state is None:
                     return response
                 response['data'] = self.get_robot_state(state, robot_name)
-            response['success'] = True
-            return response
-
-        @app.post('/open-rmf/rmf_demos_fm/navigate/',
-                  response_model=Response)
-        async def navigate(robot_name: str, cmd_id: int, dest: Request):
-            response = {'success': False, 'msg': ''}
-            #self.get_logger().info(f"navigate:::::::::::::::::::, [{dest}]")
-            #self.get_logger().info(f"data in fm,,,,,,,,,,,,,,,,, [{dest.data}]")
-            if (robot_name not in self.robots or len(dest.destination) < 1):
-                return response
-            robot = self.robots[robot_name]
-            target_x = dest.destination['x']
-            target_y = dest.destination['y']
-            target_yaw = dest.destination['yaw']
-            target_map = "L1"
-            target_speed_limit = dest.speed_limit
-
-            #-------------------------------------------------------------------------------------
-            # target_x -= self.offset[0]
-            # target_y -= self.offset[1]
-            #-------------------------------------------------------------------------------------
-
-            t = self.get_clock().now().to_msg()
-
-            path_request = PathRequest()
-            robot = self.robots[robot_name]
-            cur_x = robot.state.location.x
-            cur_y = robot.state.location.y
-            cur_yaw = robot.state.location.theta
-            cur_loc = robot.state.location
-            path_request.path.append(cur_loc)
-
-            disp = self.disp([target_x, target_y], [cur_x, cur_y])
-            duration = int(disp/self.vehicle_traits.linear.nominal_velocity) +\
-                int(abs(abs(cur_yaw) - abs(target_yaw)) /
-                    self.vehicle_traits.rotational.nominal_velocity)
-            t.sec = t.sec + duration
-            target_loc = Location()
-            #-------------------------------------------------------------------------------------
-            #target_loc.t = t
-            #-------------------------------------------------------------------------------------
-            target_loc.level_name = target_map
-            target_loc.x = target_x
-            target_loc.y = target_y
-            target_loc.theta = target_yaw
-            target_loc.level_name = "L1"
-            if target_speed_limit > 0:
-                target_loc.obey_approach_speed_limit = True
-                target_loc.approach_speed_limit = target_speed_limit
-
-            path_request.fleet_name = self.fleet_name
-            path_request.robot_name = robot_name
-            path_request.path.append(target_loc)
-            path_request.task_id = str(cmd_id)
-            #self.path_pub.publish(path_request)
-
-            if self.debug:
-                print(f'Sending navigate request for {robot_name}: {cmd_id}')
-            robot.last_path_request = path_request
-            robot.destination = target_loc
-
-            #---------------------------------------------------------------------------------------
-            x = int(target_x*1000)
-            y = int(target_y*1000)
-            #self.get_logger().info(f"x, y:, [{x,y,target_yaw}]")
-            #theta = int(math.degrees(['target_loc.theta']))
-            theta = int(target_loc.theta)
-            # if (x < -78360 and x > -78560) and (y < 2277 and y > 2077):
-            #     self.send_goal(f"goto one", ["Arrived at one", "Failed going to goal "])
-            # elif (x < -78360 and x > -78560) and (y < 4712 and y > 4512):
-            #     self.send_goal(f"goto two", ["Arrived at two", "Failed going to goal "])
-            # elif (x < -79017 and x > -79217) and (y < 90 and y > -90):
-            #     self.send_goal(f"goto home", ["Arrived at home", "Failed going to goal "])
-            # else:
-            #     self.send_goal(f"gotoPoint {x} {y} {theta}", ["Arrived at point ", "Failed going to goal "])
-            #     self.get_logger().info(f"gotoPointtttttt, [{x} {y} {theta}]")
-            self.send_goal(f"gotoPoint {x} {y} {theta}", ["Arrived at point ", "Failed going to goal "])
-            #self.send_goal(f"goto goal6",["Arrived at goal6 ", "Failed going to goal "])
-            #----------------------------------------------------------------------------------------
-            response['success'] = True
-            return response
-
-        @app.get('/open-rmf/rmf_demos_fm/stop_robot/',
-                 response_model=Response)
-        async def stop(robot_name: str, cmd_id: int):
-            response = {'success': False, 'msg': ''}
-            if robot_name not in self.robots:
-                return response
-
-            robot = self.robots[robot_name]
-            path_request = PathRequest()
-            path_request.fleet_name = self.fleet_name
-            path_request.robot_name = robot_name
-            path_request.path = []
-            # Appending the current location twice will effectively tell the
-            # robot to stop
-            
-            #********************************************************************************************
-            # path_request.path.append(robot.state.location)
-            # path_request.path.append(robot.state.location)
-            #********************************************************************************************
-            path_request.task_id = str(cmd_id)
-            #self.path_pub.publish(path_request)
-
-            if self.debug:
-                print(f'Sending stop request for {robot_name}: {cmd_id}')
-            robot.last_path_request = path_request
-            robot.destination = None
-
-            #********************************************************************************************
-            # req = ArclApi.Request()
-            # req.command = "stop"
-            # req.line_identifier = "Stopped"
-            # res = self.client.call(req)
-            self.send_goal(f"stop", ["Stopped", "Failed "])
-            #self.get_logger().info(f"STOP RESPONSE:, [{res}]")
-            #********************************************************************************************
-
             response['success'] = True
             return response
 
@@ -376,49 +237,7 @@ class FleetManager(Node):
     def robot_state_cb(self, msg):
         if (msg.name in self.robots):
             robot = self.robots[msg.name]
-            #-------------------------------------------------------------------------------------
-            # if not robot.is_expected_task_id(msg.task_id) and \
-            #         not robot.mode_teleop:
-            #     # This message is out of date, so disregard it.
-            #     if robot.last_path_request is not None:
-            #         # Resend the latest task request for this robot, in case
-            #         # the message was dropped.
-            #         if self.debug:
-            #             print(
-            #                 f'Republishing task request for {msg.name}: '
-            #                 f'{robot.last_path_request.task_id}, '
-            #                 f'because it is currently following {msg.task_id}'
-            #             )
-            #         self.path_pub.publish(robot.last_path_request)
-            #     return
-            #-------------------------------------------------------------------------------------
             robot.state = msg
-            #self.get_logger().info(f"robot.state:, [{msg}]")
-            #-------------------------------------------------------------------------------------
-            # Check if robot has reached destination
-            # if robot.destination is None:
-            #     return
-            # self.get_logger().info(f"idleeeeeee:, [{RobotMode.MODE_IDLE}]")
-            # self.get_logger().info(f"charging, [{RobotMode.MODE_CHARGING}]")
-            # if (
-            #     (
-            #         msg.mode.mode == RobotMode.MODE_IDLE
-            #         or msg.mode.mode == RobotMode.MODE_CHARGING
-            #     )
-            #     and len(msg.path) == 0
-            # ):
-            #     robot = self.robots[msg.name]
-            #     robot.destination = None
-            #     completed_request = int(msg.task_id)
-            #     if robot.last_completed_request != completed_request:
-            #         if self.debug:
-            #             print(
-            #                 f'Detecting completed request for {msg.name}: '
-            #                 f'{completed_request}'
-            #             )
-            #     robot.last_completed_request = completed_request
-            
-            #-------------------------------------------------------------------------------------
 
     def dock_summary_cb(self, msg):
         for fleet in msg.docks:
@@ -503,34 +322,6 @@ class FleetManager(Node):
         #-------------------------------------------------------------------------------------
         return data
 
-    def send_goal(self, command, identifier):
-        self.goal = Action.Goal()
-        self.goal.command = command
-        self.get_logger().info(f"command , [{command}]")
-        self.goal.identifier = identifier
-        self._action_client.wait_for_server()
-        self._send_goal_future = self._action_client.send_goal_async(self.goal, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
-        
-
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
-            return
-        self.get_logger().info('Goal accepted :)')
-
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
-
-    def get_result_callback(self, future):
-        result = future.result().result
-        #self.get_logger().info(result.res_msg)
-        self.previous_navigation_request_result = result.res_msg
-
-    def feedback_callback(self, feedback_msg):
-        feedback = feedback_msg.feedback.feed_msg
-        #self.get_logger().info(feedback) 
 
     def disp(self, A, B):
         return math.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)

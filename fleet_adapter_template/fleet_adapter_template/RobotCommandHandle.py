@@ -139,20 +139,20 @@ class RobotCommandHandle(adpt.RobotCommandHandle):
             self.docking_finished_callback = None
             self.state = RobotState.IDLE
 
-    def stop(self):
-        # Stop the robot. Tracking variables should remain unchanged.
-        while True:
-            self.node.get_logger().info("Requesting robot to stop...")
-            if self.api.stop(self.name):
-                break
-            self.sleep_for(0.1)
-        if self._follow_path_thread is not None:
-            self.node.get_logger().info("followpath thread merge...")
-            self._quit_path_event.set()
-            if self._follow_path_thread.is_alive():
-                self._follow_path_thread.join()
-            self._follow_path_thread = None
-            self.clear()
+    # def stop(self):
+    #     # Stop the robot. Tracking variables should remain unchanged.
+    #     while True:
+    #         self.node.get_logger().info("Requesting robot to stop...")
+    #         if self.api.stop(self.name):
+    #             break
+    #         self.sleep_for(0.1)
+    #     if self._follow_path_thread is not None:
+    #         self.node.get_logger().info("followpath thread merge...")
+    #         self._quit_path_event.set()
+    #         if self._follow_path_thread.is_alive():
+    #             self._follow_path_thread.join()
+    #         self._follow_path_thread = None
+    #         self.clear()
 
     def follow_new_path(
         self,
