@@ -1,0 +1,48 @@
+coordinate_system: reference_image
+crowd_sim:
+  agent_groups:
+    - {agents_name: [], agents_number: 0, group_id: 0, profile_selector: external_agent, state_selector: external_static, x: 0, y: 0}
+  agent_profiles:
+    - {ORCA_tau: 1, ORCA_tauObst: 0.40000000000000002, class: 1, max_accel: 0, max_angle_vel: 0, max_neighbors: 10, max_speed: 0, name: external_agent, neighbor_dist: 5, obstacle_set: 1, pref_speed: 0, r: 0.25}
+  enable: 0
+  goal_sets: []
+  model_types: []
+  obstacle_set: {class: 1, file_name: atclab_navmesh.nav, type: nav_mesh}
+  states:
+    - {final: 1, goal_set: -1, name: external_static, navmesh_file_name: ""}
+  transitions: []
+  update_time_step: 0.10000000000000001
+graphs:
+  {}
+levels:
+  L1:
+    drawing:
+      filename: atclab.png
+    elevation: 0
+    lanes:
+      - [0, 1, {bidirectional: [4, true], demo_mock_floor_name: [1, ""], demo_mock_lift_name: [1, ""], graph_idx: [2, 0], orientation: [1, ""], speed_limit: [3, 0]}]
+      - [1, 2, {bidirectional: [4, true], demo_mock_floor_name: [1, ""], demo_mock_lift_name: [1, ""], graph_idx: [2, 0], orientation: [1, ""], speed_limit: [3, 0]}]
+      - [0, 2, {bidirectional: [4, true], demo_mock_floor_name: [1, ""], demo_mock_lift_name: [1, ""], graph_idx: [2, 0], orientation: [1, ""], speed_limit: [3, 0]}]
+    layers:
+      {}
+    measurements:
+      - [8, 9, {distance: [3, 2.4500000000000002]}]
+      - [10, 11, {distance: [3, 1.05]}]
+      - [12, 13, {distance: [3, 1]}]
+    vertices:
+      - [396.005, 192.88800000000001, 0, one]
+      - [440.20800000000003, 237.89500000000001, 0, two]
+      - [394.81700000000001, 286.23099999999999, 0, three, {is_charger: [4, true]}]
+      - [59.354999999999997, 740.80999999999995, 0, ""]
+      - [59.276000000000003, 740.96900000000005, 0, ""]
+      - [738.05200000000002, 740.56299999999999, 0, ""]
+      - [738.99400000000003, 40.670999999999999, 0, ""]
+      - [59.997, 40.670999999999999, 0, ""]
+      - [203.34399999999999, 166.89599999999999, 0, ""]
+      - [304.75900000000001, 167.28700000000001, 0, ""]
+      - [349.209, 422.60700000000003, 0, ""]
+      - [349.209, 469.423, 0, 1090]
+      - [308.21800000000002, 375.791, 0, ""]
+      - [308.86599999999999, 422.49900000000002, 0, 1.09]
+lifts: {}
+name: atclab

@@ -1,0 +1,41 @@
+building_name: loglab
+levels:
+  level:
+    lanes:
+    - - 0
+      - 1
+      - {speed_limit: 0}
+    - - 1
+      - 0
+      - {speed_limit: 0}
+    - - 1
+      - 2
+      - {speed_limit: 0}
+    - - 2
+      - 1
+      - {speed_limit: 0}
+    - - 2
+      - 3
+      - {speed_limit: 0}
+    - - 3
+      - 2
+      - {speed_limit: 0}
+    - - 3
+      - 0
+      - {speed_limit: 0}
+    - - 0
+      - 3
+      - {speed_limit: 0}
+    vertices:
+    - - 7.2194
+      - -4.4239
+      - {is_charger: true, name: four}
+    - - 10.3949
+      - -4.4239
+      - {name: one}
+    - - 10.3949
+      - -6.8395
+      - {name: two}
+    - - 7.2466
+      - -6.7852
+      - {name: three}
