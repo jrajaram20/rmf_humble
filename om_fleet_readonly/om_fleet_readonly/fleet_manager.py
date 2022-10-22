@@ -196,6 +196,7 @@ class FleetManager(Node):
                 return response
 
             robot = self.robots[robot_name]
+            #to be checked
 
             path_request = PathRequest()
             cur_loc = robot.state.location
